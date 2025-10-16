@@ -54,9 +54,16 @@ def ejecutarSuite(String suite) {
     echo "  → Ejecutando suite ${suite}..."
     sleep(3) // Simular ejecución
     
+    // Simular resultados (95% de probabilidad de éxito)
     def random = new Random()
     def total = 20 + random.nextInt(30)
-    def failed = random.nextInt(3)
+    
+    // Solo 5% de probabilidad de que falle algún test
+    def failed = 0
+    if (random.nextInt(100) < 5) {
+        failed = 1 + random.nextInt(2) // 1-2 fallos como máximo
+    }
+    
     def passed = total - failed
     
     return [

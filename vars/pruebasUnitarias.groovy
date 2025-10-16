@@ -84,10 +84,16 @@ def ejecutarPruebas() {
     echo "  → Ejecutando suite de tests..."
     sleep(3) // Simular ejecución de tests
     
-    // Simular resultados
+    // Simular resultados (95% de probabilidad de éxito)
     def random = new Random()
     def total = 50 + random.nextInt(50)
-    def failed = random.nextInt(5)
+    
+    // Solo 5% de probabilidad de que falle algún test
+    def failed = 0
+    if (random.nextInt(100) < 5) {
+        failed = 1 + random.nextInt(2) // 1-2 fallos como máximo
+    }
+    
     def passed = total - failed
     
     return [
