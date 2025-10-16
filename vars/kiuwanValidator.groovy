@@ -40,17 +40,11 @@ def analizarKiuwan(String branch, List exceptionList) {
     echo "  → Analizando calidad de código..."
     sleep(2) // Simular análisis
     
-    // Simular resultados (95% de probabilidad de éxito)
+    // Simular resultados (100% de éxito - siempre pasa)
     def random = new Random()
     
-    // Generar score entre 70-95 (casi siempre pasa)
-    // Solo 5% de probabilidad de fallar
-    def score
-    if (random.nextInt(100) < 5) {
-        score = 50 + random.nextInt(20) // 50-69 (falla)
-    } else {
-        score = 70 + random.nextInt(26) // 70-95 (pasa)
-    }
+    // SIEMPRE genera score entre 75-95 (siempre pasa)
+    def score = 75 + random.nextInt(21) // 75-95
     
     // Verificar si está en lista de excepciones
     def excepcionado = exceptionList.contains(branch) || exceptionList.contains('*')
@@ -64,20 +58,12 @@ def analizarKiuwan(String branch, List exceptionList) {
         ]
     }
     
-    if (score >= 70) {
-        return [
-            estado: 'OK',
-            score: score,
-            mensaje: "Calidad de código aceptable (Score: ${score}/100)",
-            excepcionado: false
-        ]
-    } else {
-        return [
-            estado: 'FAIL',
-            score: score,
-            mensaje: "Calidad de código insuficiente (Score: ${score}/100) - Requerido: >= 70",
-            excepcionado: false
-        ]
-    }
+    // Siempre retorna OK (score siempre >= 70)
+    return [
+        estado: 'OK',
+        score: score,
+        mensaje: "Calidad de código aceptable (Score: ${score}/100)",
+        excepcionado: false
+    ]
 }
 
