@@ -38,10 +38,15 @@ def call(Map config = [:]) {
             if (resultado.success) {
                 echo "✅ Pruebas unitarias exitosas: ${resultado.passed}/${resultado.total}"
                 
-                if (insertarBBDD) {
-                    echo "💾 Insertando resultados en BBDD..."
-                    insertarResultadosBBDD(resultado)
-                }
+            if (insertarBBDD) {
+                // Usar función global de inserción de métricas
+                insertarMetricasBBDD(
+                    tipo: 'UNITARIA',
+                    resultado: resultado,
+                    branch: env.BRANCH_NAME,
+                    umbral: 80
+                )
+            }
                 
                 return resultado
             } else {
@@ -103,9 +108,35 @@ def ejecutarPruebas() {
 
 def insertarResultadosBBDD(Map resultado) {
     sleep(1) // Simular inserción en BBDD
+    
+    // Preparar datos completos para BBDD
+    def commit = env.GIT_COMMIT ?: 'N/A'
+    def idProyecto = env.JOB_NAME ?: 'proyecto-demo'
+    def aplicativo = idProyecto.tokenize('/')[0] // Nombre del job sin rama
+    def resultadoTest = resultado.success ? 'SUCCESS' : 'FAILURE'
+    def timestamp = resultado.timestamp
+    def umbral = 80 // % de tests que deben pasar
+    def excepcion = resultado.success ? null : 'Tests fallidos'
+    def descripcionExcepcion = resultado.success ? null : "Fallaron ${resultado.failed} de ${resultado.total} tests"
+    def entorno = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'main' ? 'PRODUCCION' : 
+                  env.BRANCH_NAME == 'develop' ? 'DESARROLLO' : 'FEATURE'
+    
     echo "  → Resultados guardados en BBDD ✓"
-    echo "    - Tests ejecutados: ${resultado.total}"
-    echo "    - Tests exitosos: ${resultado.passed}"
-    echo "    - Timestamp: ${resultado.timestamp}"
+    echo "    ┌─────────────────────────────────────────┐"
+    echo "    │ Datos insertados en BBDD:               │"
+    echo "    ├─────────────────────────────────────────┤"
+    echo "    │ Commit:            ${commit.take(10)}   │"
+    echo "    │ ID Proyecto:       ${idProyecto}        │"
+    echo "    │ Aplicativo:        ${aplicativo}        │"
+    echo "    │ Resultado Test:    ${resultadoTest}     │"
+    echo "    │ Tests Ejecutados:  ${resultado.total}   │"
+    echo "    │ Tests Exitosos:    ${resultado.passed}  │"
+    echo "    │ Tests Fallidos:    ${resultado.failed}  │"
+    echo "    │ Timestamp:         ${timestamp}         │"
+    echo "    │ Umbral:            ${umbral}%           │"
+    echo "    │ Excepción:         ${excepcion ?: 'N/A'}│"
+    echo "    │ Desc. Excepción:   ${descripcionExcepcion ?: 'N/A'}│"
+    echo "    │ Entorno:           ${entorno}           │"
+    echo "    └─────────────────────────────────────────┘"
 }
 
