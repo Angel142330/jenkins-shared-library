@@ -1,5 +1,6 @@
 package com.jenkins.mysql
 
+@Grab('com.mysql:mysql-connector-j:8.2.0')
 import groovy.sql.Sql
 import java.sql.SQLException
 
