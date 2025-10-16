@@ -33,6 +33,21 @@ class MySQLConnection {
     Sql getConnection() {
         if (sql == null) {
             try {
+                // Intentar cargar el driver manualmente
+                try {
+                    Class.forName('com.mysql.cj.jdbc.Driver')
+                    println "✅ Driver MySQL cargado: com.mysql.cj.jdbc.Driver"
+                } catch (ClassNotFoundException e) {
+                    println "⚠️  Driver MySQL no encontrado, intentando alternativa..."
+                    try {
+                        Class.forName('com.mysql.jdbc.Driver')
+                        println "✅ Driver MySQL cargado: com.mysql.jdbc.Driver (legacy)"
+                    } catch (ClassNotFoundException e2) {
+                        println "❌ No se pudo cargar ningún driver MySQL"
+                        throw new Exception("MySQL Driver no disponible. Instalar mysql-connector-j.jar en Jenkins")
+                    }
+                }
+                
                 def jdbcUrl = "jdbc:mysql://${host}:${port}/${database}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
                 sql = Sql.newInstance(jdbcUrl, user, password, 'com.mysql.cj.jdbc.Driver')
                 println "✅ Conexión MySQL establecida: ${database}@${host}"
